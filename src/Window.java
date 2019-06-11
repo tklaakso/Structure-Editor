@@ -30,7 +30,7 @@ public class Window implements GLEventListener, MouseListener, MouseMotionListen
 	}
 	
 	private float calculateFovX(){
-		return 2.0f * (float)Math.atan(Math.tan(fovy * 0.5) * ((float)width / (float)height));
+		return 2.0f * (float)Math.toDegrees(Math.atan(Math.tan(Math.toRadians(fovy) * 0.5) * ((float)width / (float)height)));
 	}
 	
 	public void init(GLAutoDrawable drawable) {
@@ -116,7 +116,7 @@ public class Window implements GLEventListener, MouseListener, MouseMotionListen
 		int signY = (int)Math.signum(dir.y);
 		int signZ = (int)Math.signum(dir.z);
 		while (pos.sub(origin).length() < 20.0f){
-			System.out.println("--------------------");
+			//System.out.println("--------------------");
 			Vector3 posX = null, posY = null, posZ = null;
 			if (signX != 0){
 				int targetPosX = signX == -1 ? floor(pos.x) : ceil(pos.x);
@@ -151,12 +151,8 @@ public class Window implements GLEventListener, MouseListener, MouseMotionListen
 				pos = posZ.clone();
 			}
 			Block b = getBlock(round(signX, pos.x), round(signY, pos.y), round(signZ, pos.z));
-			if (pos.length() > 10){
-				System.out.println("Block position: " + round(signX, pos.x) + ", " + round(signY, pos.y) + ", " + round(signZ, pos.z));
-				this.addBlock(new Block(0, round(signX, pos.x), round(signY, pos.y), round(signZ, pos.z)));
-			}
 			if (b != null){
-				//return b;
+				return b;
 			}
 		}
 		return null;
@@ -165,6 +161,7 @@ public class Window implements GLEventListener, MouseListener, MouseMotionListen
 	public void mouseMoved(MouseEvent arg0) {
 		float normalX = arg0.getX() / (float)Math.max(1, width - 1);
 		float normalY = arg0.getY() / (float)Math.max(1, height - 1);
+		System.out.println("FOV X: " + fovx);
 		float angleX = MathUtil.lerp(-fovx / 2.0f, fovx / 2.0f, normalX);
 		float angleY = MathUtil.lerp(fovy / 2.0f, -fovy / 2.0f, normalY);
 		float x = (float)Math.sin(Math.toRadians(angleX));
@@ -177,7 +174,6 @@ public class Window implements GLEventListener, MouseListener, MouseMotionListen
 		if (target != null){
 			System.out.println("BLOCK CAST SUCCEEDED");
 			System.out.println(target.x + ", " + target.y + ", " + target.z);
-			System.exit(0);
 		}
 		else{
 			System.out.println("Block cast failed");
