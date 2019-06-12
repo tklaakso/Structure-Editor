@@ -1,3 +1,5 @@
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -9,7 +11,7 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 
 
-public class Window implements GLEventListener, MouseListener, MouseMotionListener{
+public class Window implements GLEventListener{
 	
 	private ArrayList<Block> blocks;
 	
@@ -61,11 +63,35 @@ public class Window implements GLEventListener, MouseListener, MouseMotionListen
 	}
 
 	public void display(GLAutoDrawable drawable) {
+		Input.update();
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT );
 		for (int i = 0; i < blocks.size(); i++){
 			blocks.get(i).render(gl);
 		}
+		if (Input.mousePressed(MouseEvent.BUTTON1)){
+			System.out.println("reached");
+			float normalX = Input.getMouseX() / (float)Math.max(1, width - 1);
+			float normalY = Input.getMouseY() / (float)Math.max(1, height - 1);
+			System.out.println("FOV X: " + fovx);
+			float angleX = MathUtil.lerp(-fovx / 2.0f, fovx / 2.0f, normalX);
+			float angleY = MathUtil.lerp(fovy / 2.0f, -fovy / 2.0f, normalY);
+			float x = (float)Math.sin(Math.toRadians(angleX));
+			float y = (float)Math.sin(Math.toRadians(angleY));
+			assert(1 - x * x - y * y > 0);
+			float z = (float)Math.sqrt(1 - x * x - y * y);
+			Vector3 dir = new Vector3(x, y, -z);
+			Vector3 origin = new Vector3(0, 0, 0);
+			Block target = blockCast(origin, dir);
+			if (target != null){
+				System.out.println("BLOCK CAST SUCCEEDED");
+				System.out.println(target.x + ", " + target.y + ", " + target.z);
+			}
+			else{
+				System.out.println("Block cast failed");
+			}
+		}
+		Input.postUpdate();
 	}
 
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
@@ -82,11 +108,6 @@ public class Window implements GLEventListener, MouseListener, MouseMotionListen
 		glu.gluPerspective(fovy, h, 0.1, 100.0);
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
-	}
-
-	public void mouseDragged(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	private int round(int sign, float val){
@@ -151,57 +172,14 @@ public class Window implements GLEventListener, MouseListener, MouseMotionListen
 				pos = posZ.clone();
 			}
 			Block b = getBlock(round(signX, pos.x), round(signY, pos.y), round(signZ, pos.z));
+			if (pos.length() > 10){
+				addBlock(new Block(0, round(signX, pos.x), round(signY, pos.y), round(signZ, pos.z)));
+			}
 			if (b != null){
 				return b;
 			}
 		}
 		return null;
-	}
-
-	public void mouseMoved(MouseEvent arg0) {
-		float normalX = arg0.getX() / (float)Math.max(1, width - 1);
-		float normalY = arg0.getY() / (float)Math.max(1, height - 1);
-		System.out.println("FOV X: " + fovx);
-		float angleX = MathUtil.lerp(-fovx / 2.0f, fovx / 2.0f, normalX);
-		float angleY = MathUtil.lerp(fovy / 2.0f, -fovy / 2.0f, normalY);
-		float x = (float)Math.sin(Math.toRadians(angleX));
-		float y = (float)Math.sin(Math.toRadians(angleY));
-		assert(1 - x * x - y * y > 0);
-		float z = (float)Math.sqrt(1 - x * x - y * y);
-		Vector3 dir = new Vector3(x, y, -z);
-		Vector3 origin = new Vector3(0, 0, 0);
-		Block target = blockCast(origin, dir);
-		if (target != null){
-			System.out.println("BLOCK CAST SUCCEEDED");
-			System.out.println(target.x + ", " + target.y + ", " + target.z);
-		}
-		else{
-			System.out.println("Block cast failed");
-		}
-	}
-
-	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mousePressed(MouseEvent arg0) {
-		
-	}
-
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

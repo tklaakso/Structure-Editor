@@ -20,9 +20,8 @@ public class Main {
 		window.addBlock(new Block(0, 0, 0, -5));
 		window.addBlock(new Block(1, 1, 0, -5));
 		canvas.addGLEventListener(window);
-		canvas.addMouseListener(window);
-		canvas.addMouseMotionListener(window);
 		canvas.setSize(400, 400);
+		Input.initialize(canvas);
 		final JFrame frame = new JFrame("Structure Editor");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(canvas);
