@@ -46,75 +46,78 @@ public class Block implements Renderable{
 	
 	public void render(GL2 gl) {
 		
-		gl.glLoadIdentity();
-		gl.glTranslatef((float)x, (float)y, (float)z);
-		
-		gl.glBindTexture(GL2.GL_TEXTURE_2D, textures[id]);
-		gl.glBegin(GL2.GL_QUADS);
-		
-		float unit = 0.33333333333f;
-		
-		// FRONT
-		gl.glTexCoord2f(0, 0);
-		gl.glVertex3f(-0.5f, -0.5f, -0.5f);
-		gl.glTexCoord2f(unit, 0);
-		gl.glVertex3f(0.5f, -0.5f, -0.5f);
-		gl.glTexCoord2f(unit, unit);
-		gl.glVertex3f(0.5f, 0.5f, -0.5f);
-		gl.glTexCoord2f(0, unit);
-		gl.glVertex3f(-0.5f, 0.5f, -0.5f);
-		
-		// BACK
-		gl.glTexCoord2f(unit * 2, 0);
-		gl.glVertex3f(-0.5f, -0.5f, 0.5f);
-		gl.glTexCoord2f(unit * 3, 0);
-		gl.glVertex3f(0.5f, -0.5f, 0.5f);
-		gl.glTexCoord2f(unit * 3, unit);
-		gl.glVertex3f(0.5f, 0.5f, 0.5f);
-		gl.glTexCoord2f(unit * 2, unit);
-		gl.glVertex3f(-0.5f, 0.5f, 0.5f);
-		
-		// LEFT
-		gl.glTexCoord2f(unit * 2, unit);
-		gl.glVertex3f(-0.5f, -0.5f, -0.5f);
-		gl.glTexCoord2f(unit * 2, unit * 2);
-		gl.glVertex3f(-0.5f, 0.5f, -0.5f);
-		gl.glTexCoord2f(unit, unit * 2);
-		gl.glVertex3f(-0.5f, 0.5f, 0.5f);
-		gl.glTexCoord2f(unit, unit);
-		gl.glVertex3f(-0.5f, -0.5f, 0.5f);
-		
-		// RIGHT
-		gl.glTexCoord2f(unit * 2, unit);
-		gl.glVertex3f(0.5f, -0.5f, -0.5f);
-		gl.glTexCoord2f(unit * 2, unit * 2);
-		gl.glVertex3f(0.5f, 0.5f, -0.5f);
-		gl.glTexCoord2f(unit * 3, unit * 2);
-		gl.glVertex3f(0.5f, 0.5f, 0.5f);
-		gl.glTexCoord2f(unit * 3, unit);
-		gl.glVertex3f(0.5f, -0.5f, 0.5f);
-		
-		// TOP
-		gl.glTexCoord2f(unit, 0);
-		gl.glVertex3f(-0.5f, 0.5f, -0.5f);
-		gl.glTexCoord2f(unit * 2, 0);
-		gl.glVertex3f(0.5f, 0.5f, -0.5f);
-		gl.glTexCoord2f(unit * 2, unit);
-		gl.glVertex3f(0.5f, 0.5f, 0.5f);
-		gl.glTexCoord2f(unit, unit);
-		gl.glVertex3f(-0.5f, 0.5f, 0.5f);
-		
-		// BOTTOM
-		gl.glTexCoord2f(unit, unit);
-		gl.glVertex3f(-0.5f, -0.5f, -0.5f);
-		gl.glTexCoord2f(0, unit);
-		gl.glVertex3f(0.5f, -0.5f, -0.5f);
-		gl.glTexCoord2f(0, unit * 2);
-		gl.glVertex3f(0.5f, -0.5f, 0.5f);
-		gl.glTexCoord2f(unit, unit * 2);
-		gl.glVertex3f(-0.5f, -0.5f, 0.5f);
-		
-		gl.glEnd();
+		gl.glPushMatrix();
+		{
+			gl.glTranslatef((float)x, (float)y, (float)z);
+			
+			gl.glBindTexture(GL2.GL_TEXTURE_2D, textures[id]);
+			gl.glBegin(GL2.GL_QUADS);
+			
+			float unit = 0.33333333333f;
+			
+			// FRONT
+			gl.glTexCoord2f(0, 0);
+			gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+			gl.glTexCoord2f(unit, 0);
+			gl.glVertex3f(0.5f, -0.5f, -0.5f);
+			gl.glTexCoord2f(unit, unit);
+			gl.glVertex3f(0.5f, 0.5f, -0.5f);
+			gl.glTexCoord2f(0, unit);
+			gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+			
+			// BACK
+			gl.glTexCoord2f(unit * 2, 0);
+			gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+			gl.glTexCoord2f(unit * 3, 0);
+			gl.glVertex3f(0.5f, -0.5f, 0.5f);
+			gl.glTexCoord2f(unit * 3, unit);
+			gl.glVertex3f(0.5f, 0.5f, 0.5f);
+			gl.glTexCoord2f(unit * 2, unit);
+			gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+			
+			// LEFT
+			gl.glTexCoord2f(unit * 2, unit);
+			gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+			gl.glTexCoord2f(unit * 2, unit * 2);
+			gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+			gl.glTexCoord2f(unit, unit * 2);
+			gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+			gl.glTexCoord2f(unit, unit);
+			gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+			
+			// RIGHT
+			gl.glTexCoord2f(unit * 2, unit);
+			gl.glVertex3f(0.5f, -0.5f, -0.5f);
+			gl.glTexCoord2f(unit * 2, unit * 2);
+			gl.glVertex3f(0.5f, 0.5f, -0.5f);
+			gl.glTexCoord2f(unit * 3, unit * 2);
+			gl.glVertex3f(0.5f, 0.5f, 0.5f);
+			gl.glTexCoord2f(unit * 3, unit);
+			gl.glVertex3f(0.5f, -0.5f, 0.5f);
+			
+			// TOP
+			gl.glTexCoord2f(unit, 0);
+			gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+			gl.glTexCoord2f(unit * 2, 0);
+			gl.glVertex3f(0.5f, 0.5f, -0.5f);
+			gl.glTexCoord2f(unit * 2, unit);
+			gl.glVertex3f(0.5f, 0.5f, 0.5f);
+			gl.glTexCoord2f(unit, unit);
+			gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+			
+			// BOTTOM
+			gl.glTexCoord2f(unit, unit);
+			gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+			gl.glTexCoord2f(0, unit);
+			gl.glVertex3f(0.5f, -0.5f, -0.5f);
+			gl.glTexCoord2f(0, unit * 2);
+			gl.glVertex3f(0.5f, -0.5f, 0.5f);
+			gl.glTexCoord2f(unit, unit * 2);
+			gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+			
+			gl.glEnd();
+		}
+		gl.glPopMatrix();
 		
 	}
 

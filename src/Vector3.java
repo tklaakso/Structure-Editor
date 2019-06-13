@@ -3,6 +3,8 @@ public class Vector3 {
 	
 	public float x, y, z;
 	
+	public static final Vector3 zero = new Vector3(0, 0, 0);
+	
 	public Vector3(float x, float y, float z){
 		this.x = x;
 		this.y = y;
@@ -28,6 +30,11 @@ public class Vector3 {
 	
 	public Vector3 multScalar(float s){
 		return new Vector3(x * s, y * s, z * s);
+	}
+	
+	public Vector3 mult(Quaternion q){
+		Quaternion result = q.times(new Quaternion(x, y, z, 0)).times(q.conjugate());
+		return new Vector3(result.x, result.y, result.z);
 	}
 	
 	public float dot(Vector3 other){

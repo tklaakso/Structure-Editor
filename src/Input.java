@@ -18,7 +18,9 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener{
 	private static ArrayList<Integer> mouseButtonsPressed = new ArrayList<Integer>();
 	private static ArrayList<Integer> mouseButtonsReleased = new ArrayList<Integer>();
 	
+	private static int mouseXPrev = 0, mouseYPrev = 0;
 	private static int mouseX = 0, mouseY = 0;
+	private static int mouseXDelta = 0, mouseYDelta = 0;
 	
 	private static Input instance = null;
 	
@@ -54,6 +56,14 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener{
 		return mouseY;
 	}
 	
+	public static int getMouseXDelta(){
+		return mouseXDelta;
+	}
+	
+	public static int getMouseYDelta(){
+		return mouseYDelta;
+	}
+	
 	public static void initialize(GLCanvas canvas){
 		instance = new Input();
 		canvas.addKeyListener(instance);
@@ -86,6 +96,10 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener{
 				mouseButtonsDown.remove(new Integer(button));
 			}
 		}
+		mouseXDelta = mouseX - mouseXPrev;
+		mouseYDelta = mouseY - mouseYPrev;
+		mouseXPrev = mouseX;
+		mouseYPrev = mouseY;
 	}
 	
 	public static void postUpdate(){
@@ -96,8 +110,8 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener{
 	}
 
 	public void mouseDragged(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		mouseX = arg0.getX();
+		mouseY = arg0.getY();
 	}
 
 	public void mouseMoved(MouseEvent arg0) {

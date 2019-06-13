@@ -1,3 +1,6 @@
+import java.awt.AWTException;
+import java.awt.Point;
+import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -5,9 +8,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 
+import javax.swing.JFrame;
+
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
 
@@ -23,8 +29,11 @@ public class Window implements GLEventListener{
 	private float fovy = 45.0f;
 	private float fovx = calculateFovX();
 	
+	private Camera cam;
+	
 	public Window(){
 		blocks = new ArrayList<Block>();
+		cam = new Camera();
 	}
 	
 	public void addBlock(Block block){
@@ -65,7 +74,9 @@ public class Window implements GLEventListener{
 	public void display(GLAutoDrawable drawable) {
 		Input.update();
 		final GL2 gl = drawable.getGL().getGL2();
+		gl.glLoadIdentity();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT );
+		cam.update(gl);
 		for (int i = 0; i < blocks.size(); i++){
 			blocks.get(i).render(gl);
 		}
