@@ -32,11 +32,6 @@ public class Vector3 {
 		return new Vector3(x * s, y * s, z * s);
 	}
 	
-	public Vector3 mult(Quaternion q){
-		Quaternion result = q.times(new Quaternion(x, y, z, 0)).times(q.conjugate());
-		return new Vector3(result.x, result.y, result.z);
-	}
-	
 	public float dot(Vector3 other){
 		return x * other.x + y * other.y + z * other.z;
 	}
