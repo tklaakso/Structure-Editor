@@ -44,8 +44,8 @@ public class Block implements Renderable{
 		}
 	}
 	
-	public Vector3 middle(){
-		return new Vector3(x + 1.0f, y + 1.0f, z + 1.0f);
+	public Vector3f middle(){
+		return new Vector3f(x + 1.0f, y + 1.0f, z + 1.0f);
 	}
 	
 	private float clamp(float f, float a, float b){
@@ -59,8 +59,8 @@ public class Block implements Renderable{
 		return f;
 	}
 	
-	public Vector3 getClosestPoint(Vector3 point){
-		return new Vector3(clamp(point.x, x - 0.15f, x + 1.15f), clamp(point.y, y - 0.15f, y + 1.15f), clamp(point.z, z - 0.15f, z + 1.15f));
+	public Vector3f getClosestPoint(Vector3f point){
+		return new Vector3f(clamp(point.x, x - 0.15f, x + 1.15f), clamp(point.y, y - 0.15f, y + 1.15f), clamp(point.z, z - 0.15f, z + 1.15f));
 	}
 	
 	public void render(GL2 gl) {

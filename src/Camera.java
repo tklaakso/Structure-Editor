@@ -6,7 +6,7 @@ import com.jogamp.opengl.GL2;
 
 public class Camera {
 	
-	private Vector3 pos;
+	private Vector3f pos;
 	
 	private float yaw = 0, pitch = 0;
 	
@@ -19,13 +19,13 @@ public class Camera {
 	private Window window;
 	
 	public Camera(Window window){
-		pos = Vector3.zero;
+		pos = Vector3f.zero;
 		this.window = window;
 	}
 	
-	public void update(GL2 gl){
+	public void tick(){
 		Block closest = window.getClosestBlock(pos, 6);
-		Vector3 closestDistance = null;
+		Vector3f closestDistance = null;
 		float blockSlowDown = 1.0f;
 		if (closest != null){
 			closestDistance = closest.getClosestPoint(pos).sub(pos);
@@ -35,26 +35,26 @@ public class Camera {
 			yaw += Input.getMouseXDelta() * rotateSpeed;
 			pitch += Input.getMouseYDelta() * rotateSpeed;
 		}
-		Vector3 dir = Vector3.zero;
+		Vector3f dir = Vector3f.zero;
 		if (Input.keyDown(KeyEvent.VK_W)){
-			dir = dir.add(new Vector3(0, 0, -1).rotatePitch(-pitch).rotateYaw(-yaw));
+			dir = dir.add(new Vector3f(0, 0, -1).rotatePitch(-pitch).rotateYaw(-yaw));
 		}
 		if (Input.keyDown(KeyEvent.VK_S)){
-			dir = dir.add(new Vector3(0, 0, 1).rotatePitch(-pitch).rotateYaw(-yaw));
+			dir = dir.add(new Vector3f(0, 0, 1).rotatePitch(-pitch).rotateYaw(-yaw));
 		}
 		if (Input.keyDown(KeyEvent.VK_A)){
-			dir = dir.add(new Vector3(-1, 0, 0).rotatePitch(-pitch).rotateYaw(-yaw));
+			dir = dir.add(new Vector3f(-1, 0, 0).rotatePitch(-pitch).rotateYaw(-yaw));
 		}
 		if (Input.keyDown(KeyEvent.VK_D)){
-			dir = dir.add(new Vector3(1, 0, 0).rotatePitch(-pitch).rotateYaw(-yaw));
+			dir = dir.add(new Vector3f(1, 0, 0).rotatePitch(-pitch).rotateYaw(-yaw));
 		}
 		if (Input.keyDown(KeyEvent.VK_SPACE)){
-			dir = dir.add(new Vector3(0, 1, 0).rotatePitch(-pitch).rotateYaw(-yaw));
+			dir = dir.add(new Vector3f(0, 1, 0).rotatePitch(-pitch).rotateYaw(-yaw));
 		}
 		if (Input.keyDown(KeyEvent.VK_SHIFT)){
-			dir = dir.add(new Vector3(0, -1, 0).rotatePitch(-pitch).rotateYaw(-yaw));
+			dir = dir.add(new Vector3f(0, -1, 0).rotatePitch(-pitch).rotateYaw(-yaw));
 		}
-		if (dir != Vector3.zero){
+		if (dir != Vector3f.zero){
 			dir = dir.normalized();
 			if (closestDistance == null || dir.dot(closestDistance) < 0){
 				pos = pos.add(dir.multScalar(moveSpeed));
@@ -63,9 +63,24 @@ public class Camera {
 				pos = pos.add(dir.multScalar(moveSpeed * blockSlowDown));
 			}
 		}
+	}
+	
+	public void render(GL2 gl){
 		gl.glRotatef(pitch, 1, 0, 0);
 		gl.glRotatef(yaw, 0, 1, 0);
 		gl.glTranslatef(-pos.x, -pos.y, -pos.z);
+	}
+	
+	public float getPitch(){
+		return -pitch;
+	}
+	
+	public float getYaw(){
+		return -yaw;
+	}
+	
+	public Vector3f getPosition(){
+		return pos;
 	}
 	
 }

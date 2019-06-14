@@ -19,6 +19,10 @@ import com.jogamp.opengl.glu.GLU;
 
 public class Window implements GLEventListener{
 	
+	public static final float BLOCK_CAST_NULL_DISTANCE = 6.0f;
+	
+	public static final int WORLD_SIZE = 20;
+	
 	private Block[][][] blocks;
 	private ArrayList<Block> blockList;
 	
@@ -32,24 +36,24 @@ public class Window implements GLEventListener{
 	
 	private Camera cam;
 	
-	public static final int WORLD_SIZE = 20;
+	private Vector3i selectedBlock = Vector3i.zero;
 	
 	public Window(){
-		blocks = new Block[WORLD_SIZE][WORLD_SIZE][WORLD_SIZE];
+		blocks = new Block[WORLD_SIZE * 2][WORLD_SIZE * 2][WORLD_SIZE * 2];
 		blockList = new ArrayList<Block>();
 		cam = new Camera(this);
 	}
 	
-	public Block getClosestBlock(Vector3 point, int searchRadius){
+	public Block getClosestBlock(Vector3f point, int searchRadius){
 		int xPos = (int)point.x;
 		int yPos = (int)point.y;
 		int zPos = (int)point.z;
 		Block closest = null;
-		for (int x = Math.max(0, xPos - searchRadius); x < Math.min(xPos + searchRadius, WORLD_SIZE); x++){
-			for (int y = Math.max(0, yPos - searchRadius); y < Math.min(yPos + searchRadius, WORLD_SIZE); y++){
-				for (int z = Math.max(0, zPos - searchRadius); z < Math.min(zPos + searchRadius, WORLD_SIZE); z++){
-					if (blocks[x][y][z] != null && (closest == null || closest.getClosestPoint(point).sub(point).length() > blocks[x][y][z].getClosestPoint(point).sub(point).length())){
-						closest = blocks[x][y][z];
+		for (int x = Math.max(-WORLD_SIZE, xPos - searchRadius); x < Math.min(xPos + searchRadius, WORLD_SIZE); x++){
+			for (int y = Math.max(-WORLD_SIZE, yPos - searchRadius); y < Math.min(yPos + searchRadius, WORLD_SIZE); y++){
+				for (int z = Math.max(-WORLD_SIZE, zPos - searchRadius); z < Math.min(zPos + searchRadius, WORLD_SIZE); z++){
+					if (getBlock(x, y, z) != null && (closest == null || closest.getClosestPoint(point).sub(point).length() > getBlock(x, y, z).getClosestPoint(point).sub(point).length())){
+						closest = getBlock(x, y, z);
 					}
 				}
 			}
@@ -57,15 +61,44 @@ public class Window implements GLEventListener{
 		return closest;
 	}
 	
+	private boolean inWorldRange(int x, int y, int z){
+		return x >= -WORLD_SIZE && x < WORLD_SIZE && y >= -WORLD_SIZE && y < WORLD_SIZE && z >= -WORLD_SIZE && z < WORLD_SIZE;
+	}
+	
 	public void addBlock(Block block){
-		if (block.x >= 0 && block.x < WORLD_SIZE && block.y >= 0 && block.y < WORLD_SIZE && block.z >= 0 && block.z < WORLD_SIZE){
-			if (blocks[block.x][block.y][block.z] == null){
-				blocks[block.x][block.y][block.z] = block;
+		if (inWorldRange(block.x, block.y, block.z)){
+			if (getBlock(block.x, block.y, block.z) == null){
+				setBlock(block);
 				blockList.add(block);
+			}
+			else{
+				blockList.remove(getBlock(block.x, block.y, block.z));
+				blockList.add(block);
+				setBlock(block);
 			}
 		}
 		else{
 			System.out.println("Error: Tried to add block outside of world bounds");
+		}
+	}
+	
+	public Block getBlock(int x, int y, int z){
+		if (!inWorldRange(x, y, z)){
+			return null;
+		}
+		return blocks[x + WORLD_SIZE][y + WORLD_SIZE][z + WORLD_SIZE];
+	}
+	
+	private void setBlock(Block b){
+		assert(b != null);
+		assert(inWorldRange(b.x, b.y, b.z));
+		blocks[b.x + WORLD_SIZE][b.y + WORLD_SIZE][b.z + WORLD_SIZE] = b;
+	}
+	
+	public void removeBlock(int x, int y, int z){
+		if (getBlock(x, y, z) != null){
+			blockList.remove(getBlock(x, y, z));
+			blocks[x + WORLD_SIZE][y + WORLD_SIZE][z + WORLD_SIZE] = null;
 		}
 	}
 	
@@ -90,14 +123,64 @@ public class Window implements GLEventListener{
 		
 	}
 	
-	public Block getBlock(int x, int y, int z){
-		for (int i = 0; i < blockList.size(); i++){
-			Block current = blockList.get(i);
-			if (current.x == x && current.y == y && current.z == z){
-				return current;
-			}
+	private void renderSelectedBlock(GL2 gl){
+		
+		gl.glLineWidth(3.0f);
+		
+		gl.glPushMatrix();
+		{
+			
+			gl.glTranslatef(selectedBlock.x, selectedBlock.y, selectedBlock.z);
+			
+			gl.glColor3f(0.5f, 0.5f, 0.5f);
+			
+			gl.glBegin(GL2.GL_LINES);
+			
+			// Front
+			gl.glVertex3f(0, 0, 0);
+			gl.glVertex3f(1, 0, 0);
+			
+			gl.glVertex3f(1, 0, 0);
+			gl.glVertex3f(1, 1, 0);
+			
+			gl.glVertex3f(1, 1, 0);
+			gl.glVertex3f(0, 1, 0);
+			
+			gl.glVertex3f(0, 1, 0);
+			gl.glVertex3f(0, 0, 0);
+			
+			// Left
+			gl.glVertex3f(0, 0, 0);
+			gl.glVertex3f(0, 0, 1);
+			
+			gl.glVertex3f(0, 0, 1);
+			gl.glVertex3f(0, 1, 1);
+			
+			gl.glVertex3f(0, 1, 1);
+			gl.glVertex3f(0, 1, 0);
+			
+			// Right
+			gl.glVertex3f(1, 0, 0);
+			gl.glVertex3f(1, 0, 1);
+			
+			gl.glVertex3f(1, 0, 1);
+			gl.glVertex3f(1, 1, 1);
+			
+			gl.glVertex3f(1, 1, 1);
+			gl.glVertex3f(1, 1, 0);
+			
+			// Back
+			gl.glVertex3f(0, 0, 1);
+			gl.glVertex3f(1, 0, 1);
+			
+			gl.glVertex3f(0, 1, 1);
+			gl.glVertex3f(1, 1, 1);
+			
+			gl.glEnd();
+			
 		}
-		return null;
+		gl.glPopMatrix();
+		
 	}
 	
 	private void renderAxes(GL2 gl){
@@ -146,41 +229,51 @@ public class Window implements GLEventListener{
 		gl.glEnd();
 		
 	}
-
-	public void display(GLAutoDrawable drawable) {
+	
+	private void updateSelectedBlock(){
+		float normalX = Input.getMouseX() / (float)Math.max(1, width - 1);
+		float normalY = Input.getMouseY() / (float)Math.max(1, height - 1);
+		float angleX = MathUtil.lerp(-fovx / 2.0f, fovx / 2.0f, normalX);
+		float angleY = MathUtil.lerp(fovy / 2.0f, -fovy / 2.0f, normalY);
+		float x = (float)Math.sin(Math.toRadians(angleX));
+		float y = (float)Math.sin(Math.toRadians(angleY));
+		assert(1 - x * x - y * y > 0);
+		float z = (float)Math.sqrt(1 - x * x - y * y);
+		Vector3f dir = new Vector3f(x, y, -z).rotatePitch(cam.getPitch()).rotateYaw(cam.getYaw());
+		Vector3f origin = cam.getPosition();
+		selectedBlock = blockCast(origin, dir);
+	}
+	
+	private void tick(){
 		Input.update();
-		final GL2 gl = drawable.getGL().getGL2();
+		cam.tick();
+		updateSelectedBlock();
+		if (Input.mousePressed(MouseEvent.BUTTON3)){
+			removeBlock(selectedBlock.x, selectedBlock.y, selectedBlock.z);
+		}
+	}
+	
+	private void postTick(){
+		Input.postUpdate();
+	}
+	
+	private void render(GL2 gl){
 		gl.glLoadIdentity();
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT );
-		cam.update(gl);
+		cam.render(gl);
 		renderAxes(gl);
 		for (int i = 0; i < blockList.size(); i++){
 			blockList.get(i).render(gl);
 		}
-		if (Input.mousePressed(MouseEvent.BUTTON1)){
-			System.out.println("reached");
-			float normalX = Input.getMouseX() / (float)Math.max(1, width - 1);
-			float normalY = Input.getMouseY() / (float)Math.max(1, height - 1);
-			System.out.println("FOV X: " + fovx);
-			float angleX = MathUtil.lerp(-fovx / 2.0f, fovx / 2.0f, normalX);
-			float angleY = MathUtil.lerp(fovy / 2.0f, -fovy / 2.0f, normalY);
-			float x = (float)Math.sin(Math.toRadians(angleX));
-			float y = (float)Math.sin(Math.toRadians(angleY));
-			assert(1 - x * x - y * y > 0);
-			float z = (float)Math.sqrt(1 - x * x - y * y);
-			Vector3 dir = new Vector3(x, y, -z);
-			Vector3 origin = new Vector3(0, 0, 0);
-			Block target = blockCast(origin, dir);
-			if (target != null){
-				System.out.println("BLOCK CAST SUCCEEDED");
-				System.out.println(target.x + ", " + target.y + ", " + target.z);
-			}
-			else{
-				System.out.println("Block cast failed");
-			}
-		}
-		Input.postUpdate();
+		renderSelectedBlock(gl);
+	}
+
+	public void display(GLAutoDrawable drawable) {
+		final GL2 gl = drawable.getGL().getGL2();
+		tick();
+		render(gl);
+		postTick();
 	}
 
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
@@ -220,55 +313,47 @@ public class Window implements GLEventListener{
 		return (int)Math.ceil(x);
 	}
 	
-	private Block blockCast(Vector3 origin, Vector3 dir){
-		Vector3 pos = origin.clone();
+	private Vector3i blockCast(Vector3f origin, Vector3f dir){
+		Vector3f pos = origin.clone();
 		int signX = (int)Math.signum(dir.x);
 		int signY = (int)Math.signum(dir.y);
 		int signZ = (int)Math.signum(dir.z);
+		Vector3i nullPosition = null;
 		while (pos.sub(origin).length() < 20.0f){
-			//System.out.println("--------------------");
-			Vector3 posX = null, posY = null, posZ = null;
+			if (nullPosition == null && pos.sub(origin).length() > BLOCK_CAST_NULL_DISTANCE){
+				nullPosition = new Vector3i((int)pos.x, (int)pos.y, (int)pos.z);
+			}
+			Vector3f posX = null, posY = null, posZ = null;
 			if (signX != 0){
 				int targetPosX = signX == -1 ? floor(pos.x) : ceil(pos.x);
 				posX = pos.add(dir.multScalar(Math.abs(pos.x - targetPosX) / Math.abs(dir.x)));
 				posX.x = Math.round(posX.x);
-				//System.out.println("PosX: " + posX.x + ", " + posX.y + ", " + posX.z);
 			}
 			if (signY != 0){
 				int targetPosY = signY == -1 ? floor(pos.y) : ceil(pos.y);
 				posY = pos.add(dir.multScalar(Math.abs(pos.y - targetPosY) / Math.abs(dir.y)));
 				posY.y = Math.round(posY.y);
-				//System.out.println("PosY: " + posY.x + ", " + posY.y + ", " + posY.z);
 			}
 			if (signZ != 0){
 				int targetPosZ = signZ == -1 ? floor(pos.z) : ceil(pos.z);
 				posZ = pos.add(dir.multScalar(Math.abs(pos.z - targetPosZ) / Math.abs(dir.z)));
 				posZ.z = Math.round(posZ.z);
-				//System.out.println("PosZ: " + posZ.x + ", " + posZ.y + ", " + posZ.z);
 			}
-			//System.out.println("Pos: " + pos.x + ", " + pos.y + ", " + pos.z);
-			//System.out.println("Dir: " + dir.x + ", " + dir.y + ", " + dir.z);
-			//System.out.println(round(signY, posX.y) + ", " + round(signZ, posX.z));
 			if (posX != null && round(signY, posX.y) == round(signY, pos.y) && round(signZ, posX.z) == round(signZ, pos.z)){
-				//System.out.println(posX.x + ", " + posX.y + ", " + posX.z);
 				pos = posX.clone();
 			}
 			else if (posY != null && round(signX, posY.x) == round(signX, pos.x) && round(signZ, posY.z) == round(signZ, pos.z)){
-				//System.out.println(posY.x + ", " + posY.y + ", " + posY.z);
 				pos = posY.clone();
 			}
 			else if (posZ != null && round(signX, posZ.x) == round(signX, pos.x) && round(signY, posZ.y) == round(signY, pos.y)){
 				pos = posZ.clone();
 			}
 			Block b = getBlock(round(signX, pos.x), round(signY, pos.y), round(signZ, pos.z));
-			if (pos.length() > 10){
-				addBlock(new Block(0, round(signX, pos.x), round(signY, pos.y), round(signZ, pos.z)));
-			}
 			if (b != null){
-				return b;
+				return new Vector3i(b.x, b.y, b.z);
 			}
 		}
-		return null;
+		return nullPosition;
 	}
 
 }
