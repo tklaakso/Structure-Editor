@@ -19,7 +19,8 @@ import com.jogamp.opengl.glu.GLU;
 
 public class Window implements GLEventListener{
 	
-	private ArrayList<Block> blocks;
+	private Block[][][] blocks;
+	private ArrayList<Block> blockList;
 	
 	private GLU glu = new GLU();
 	
@@ -31,13 +32,41 @@ public class Window implements GLEventListener{
 	
 	private Camera cam;
 	
+	public static final int WORLD_SIZE = 20;
+	
 	public Window(){
-		blocks = new ArrayList<Block>();
-		cam = new Camera();
+		blocks = new Block[WORLD_SIZE][WORLD_SIZE][WORLD_SIZE];
+		blockList = new ArrayList<Block>();
+		cam = new Camera(this);
+	}
+	
+	public Block getClosestBlock(Vector3 point, int searchRadius){
+		int xPos = (int)point.x;
+		int yPos = (int)point.y;
+		int zPos = (int)point.z;
+		Block closest = null;
+		for (int x = Math.max(0, xPos - searchRadius); x < Math.min(xPos + searchRadius, WORLD_SIZE); x++){
+			for (int y = Math.max(0, yPos - searchRadius); y < Math.min(yPos + searchRadius, WORLD_SIZE); y++){
+				for (int z = Math.max(0, zPos - searchRadius); z < Math.min(zPos + searchRadius, WORLD_SIZE); z++){
+					if (blocks[x][y][z] != null && (closest == null || closest.getClosestPoint(point).sub(point).length() > blocks[x][y][z].getClosestPoint(point).sub(point).length())){
+						closest = blocks[x][y][z];
+					}
+				}
+			}
+		}
+		return closest;
 	}
 	
 	public void addBlock(Block block){
-		blocks.add(block);
+		if (block.x >= 0 && block.x < WORLD_SIZE && block.y >= 0 && block.y < WORLD_SIZE && block.z >= 0 && block.z < WORLD_SIZE){
+			if (blocks[block.x][block.y][block.z] == null){
+				blocks[block.x][block.y][block.z] = block;
+				blockList.add(block);
+			}
+		}
+		else{
+			System.out.println("Error: Tried to add block outside of world bounds");
+		}
 	}
 	
 	private float calculateFovX(){
@@ -62,23 +91,72 @@ public class Window implements GLEventListener{
 	}
 	
 	public Block getBlock(int x, int y, int z){
-		for (int i = 0; i < blocks.size(); i++){
-			Block current = blocks.get(i);
+		for (int i = 0; i < blockList.size(); i++){
+			Block current = blockList.get(i);
 			if (current.x == x && current.y == y && current.z == z){
 				return current;
 			}
 		}
 		return null;
 	}
+	
+	private void renderAxes(GL2 gl){
+		
+		gl.glLineWidth(3.0f);
+		
+		gl.glBegin(GL2.GL_LINES);		
+		
+		// X axis
+		gl.glColor3f(0.0f, 0.0f, 1.0f);
+		gl.glVertex3f(-WORLD_SIZE, 0, 0);
+		gl.glVertex3f(WORLD_SIZE, 0, 0);
+		
+		// Y axis
+		gl.glColor3f(1.0f, 0.0f, 0.0f);
+		gl.glVertex3f(0, -WORLD_SIZE, 0);
+		gl.glVertex3f(0, WORLD_SIZE, 0);
+		
+		// Z axis
+		gl.glColor3f(0.0f, 1.0f, 0.0f);
+		gl.glVertex3f(0, 0, -WORLD_SIZE);
+		gl.glVertex3f(0, 0, WORLD_SIZE);
+				
+		gl.glEnd();
+		
+		gl.glLineWidth(1.0f);
+		
+		gl.glBegin(GL2.GL_LINES);
+		
+		// Draw grid
+		gl.glColor3f(1.0f, 0.0f, 0.0f);
+		for (int x = -WORLD_SIZE; x < WORLD_SIZE + 1; x++){
+			if (x != 0){
+				gl.glVertex3f(x, 0.0f, -WORLD_SIZE);
+				gl.glVertex3f(x, 0.0f, WORLD_SIZE);
+			}
+		}
+		
+		for (int y = -WORLD_SIZE; y < WORLD_SIZE + 1; y++){
+			if (y != 0){
+				gl.glVertex3f(-WORLD_SIZE, 0.0f, y);
+				gl.glVertex3f(WORLD_SIZE, 0.0f, y);
+			}
+		}
+		
+		gl.glEnd();
+		
+	}
 
 	public void display(GLAutoDrawable drawable) {
 		Input.update();
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glLoadIdentity();
+		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT );
 		cam.update(gl);
-		for (int i = 0; i < blocks.size(); i++){
-			blocks.get(i).render(gl);
+		renderAxes(gl);
+		for (int i = 0; i < blockList.size(); i++){
+			blockList.get(i).render(gl);
 		}
 		if (Input.mousePressed(MouseEvent.BUTTON1)){
 			System.out.println("reached");

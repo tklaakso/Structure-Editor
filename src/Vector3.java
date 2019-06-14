@@ -32,12 +32,39 @@ public class Vector3 {
 		return new Vector3(x * s, y * s, z * s);
 	}
 	
+	public Vector3 rotateYaw(float yaw){
+		float cos = (float)Math.cos(Math.toRadians(yaw));
+		float sin = (float)Math.sin(Math.toRadians(yaw));
+		float _x = x * cos + z * sin;
+		float _y = y;
+		float _z = -x * sin + z * cos;
+		return new Vector3(_x, _y, _z);
+	}
+	
+	public Vector3 rotatePitch(float pitch){
+		float cos = (float)Math.cos(Math.toRadians(pitch));
+		float sin = (float)Math.sin(Math.toRadians(pitch));
+		float _x = x;
+		float _y = y * cos - z * sin;
+		float _z = y * sin + z * cos;
+		return new Vector3(_x, _y, _z);
+	}
+	
 	public float dot(Vector3 other){
 		return x * other.x + y * other.y + z * other.z;
 	}
 	
 	public float length(){
 		return (float)Math.sqrt(x * x + y * y + z * z);
+	}
+	
+	@Override
+	public String toString(){
+		return x + ", " + y + ", " + z;
+	}
+	
+	public boolean equals(Vector3 other){
+		return x == other.x && y == other.y && z == other.z;
 	}
 	
 }

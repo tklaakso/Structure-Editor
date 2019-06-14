@@ -44,6 +44,25 @@ public class Block implements Renderable{
 		}
 	}
 	
+	public Vector3 middle(){
+		return new Vector3(x + 1.0f, y + 1.0f, z + 1.0f);
+	}
+	
+	private float clamp(float f, float a, float b){
+		assert(a < b);
+		if (f < a){
+			f = a;
+		}
+		if (f > b){
+			f = b;
+		}
+		return f;
+	}
+	
+	public Vector3 getClosestPoint(Vector3 point){
+		return new Vector3(clamp(point.x, x - 0.15f, x + 1.15f), clamp(point.y, y - 0.15f, y + 1.15f), clamp(point.z, z - 0.15f, z + 1.15f));
+	}
+	
 	public void render(GL2 gl) {
 		
 		gl.glPushMatrix();
@@ -53,67 +72,69 @@ public class Block implements Renderable{
 			gl.glBindTexture(GL2.GL_TEXTURE_2D, textures[id]);
 			gl.glBegin(GL2.GL_QUADS);
 			
+			gl.glColor3f(1.0f, 1.0f, 1.0f);
+			
 			float unit = 0.33333333333f;
 			
 			// FRONT
 			gl.glTexCoord2f(0, 0);
-			gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+			gl.glVertex3f(0.0f, 0.0f, 0.0f);
 			gl.glTexCoord2f(unit, 0);
-			gl.glVertex3f(0.5f, -0.5f, -0.5f);
+			gl.glVertex3f(1.0f, 0.0f, 0.0f);
 			gl.glTexCoord2f(unit, unit);
-			gl.glVertex3f(0.5f, 0.5f, -0.5f);
+			gl.glVertex3f(1.0f, 1.0f, 0.0f);
 			gl.glTexCoord2f(0, unit);
-			gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+			gl.glVertex3f(0.0f, 1.0f, 0.0f);
 			
 			// BACK
 			gl.glTexCoord2f(unit * 2, 0);
-			gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+			gl.glVertex3f(0.0f, 0.0f, 1.0f);
 			gl.glTexCoord2f(unit * 3, 0);
-			gl.glVertex3f(0.5f, -0.5f, 0.5f);
+			gl.glVertex3f(1.0f, 0.0f, 1.0f);
 			gl.glTexCoord2f(unit * 3, unit);
-			gl.glVertex3f(0.5f, 0.5f, 0.5f);
+			gl.glVertex3f(1.0f, 1.0f, 1.0f);
 			gl.glTexCoord2f(unit * 2, unit);
-			gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+			gl.glVertex3f(0.0f, 1.0f, 1.0f);
 			
 			// LEFT
 			gl.glTexCoord2f(unit * 2, unit);
-			gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+			gl.glVertex3f(0.0f, 0.0f, 0.0f);
 			gl.glTexCoord2f(unit * 2, unit * 2);
-			gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+			gl.glVertex3f(0.0f, 1.0f, 0.0f);
 			gl.glTexCoord2f(unit, unit * 2);
-			gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+			gl.glVertex3f(0.0f, 1.0f, 1.0f);
 			gl.glTexCoord2f(unit, unit);
-			gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+			gl.glVertex3f(0.0f, 0.0f, 1.0f);
 			
 			// RIGHT
 			gl.glTexCoord2f(unit * 2, unit);
-			gl.glVertex3f(0.5f, -0.5f, -0.5f);
+			gl.glVertex3f(1.0f, 0.0f, 0.0f);
 			gl.glTexCoord2f(unit * 2, unit * 2);
-			gl.glVertex3f(0.5f, 0.5f, -0.5f);
+			gl.glVertex3f(1.0f, 1.0f, 0.0f);
 			gl.glTexCoord2f(unit * 3, unit * 2);
-			gl.glVertex3f(0.5f, 0.5f, 0.5f);
+			gl.glVertex3f(1.0f, 1.0f, 1.0f);
 			gl.glTexCoord2f(unit * 3, unit);
-			gl.glVertex3f(0.5f, -0.5f, 0.5f);
+			gl.glVertex3f(1.0f, 0.0f, 1.0f);
 			
 			// TOP
 			gl.glTexCoord2f(unit, 0);
-			gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+			gl.glVertex3f(0.0f, 1.0f, 0.0f);
 			gl.glTexCoord2f(unit * 2, 0);
-			gl.glVertex3f(0.5f, 0.5f, -0.5f);
+			gl.glVertex3f(1.0f, 1.0f, 0.0f);
 			gl.glTexCoord2f(unit * 2, unit);
-			gl.glVertex3f(0.5f, 0.5f, 0.5f);
+			gl.glVertex3f(1.0f, 1.0f, 1.0f);
 			gl.glTexCoord2f(unit, unit);
-			gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+			gl.glVertex3f(0.0f, 1.0f, 1.0f);
 			
 			// BOTTOM
 			gl.glTexCoord2f(unit, unit);
-			gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+			gl.glVertex3f(0.0f, 0.0f, 0.0f);
 			gl.glTexCoord2f(0, unit);
-			gl.glVertex3f(0.5f, -0.5f, -0.5f);
+			gl.glVertex3f(1.0f, 0.0f, 0.0f);
 			gl.glTexCoord2f(0, unit * 2);
-			gl.glVertex3f(0.5f, -0.5f, 0.5f);
+			gl.glVertex3f(1.0f, 0.0f, 1.0f);
 			gl.glTexCoord2f(unit, unit * 2);
-			gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+			gl.glVertex3f(0.0f, 0.0f, 1.0f);
 			
 			gl.glEnd();
 		}

@@ -8,34 +8,64 @@ public class Camera {
 	
 	private Vector3 pos;
 	
-	private float yaw = 0, pitch = 0, roll = 0;
+	private float yaw = 0, pitch = 0;
 	
-	private float moveSpeed = 0.5f;
+	private float moveSpeed = 0.2f;
 	
-	private float rotateSpeed = 0.4f;
+	private float rotateSpeed = 0.3f;
 	
-	private float slowDownFactor = 0.1f;
+	private float slowDownFactor = 0.6f;
 	
-	public Camera(){
+	private Window window;
+	
+	public Camera(Window window){
 		pos = Vector3.zero;
+		this.window = window;
 	}
 	
 	public void update(GL2 gl){
+		Block closest = window.getClosestBlock(pos, 6);
+		Vector3 closestDistance = null;
+		float blockSlowDown = 1.0f;
+		if (closest != null){
+			closestDistance = closest.getClosestPoint(pos).sub(pos);
+			blockSlowDown = Math.min(1.0f, Math.max(0.0f, closestDistance.length() * slowDownFactor));
+		}
 		if (Input.mouseDown(MouseEvent.BUTTON1)){
 			yaw += Input.getMouseXDelta() * rotateSpeed;
 			pitch += Input.getMouseYDelta() * rotateSpeed;
 		}
+		Vector3 dir = Vector3.zero;
 		if (Input.keyDown(KeyEvent.VK_W)){
-			Vector3 dir = new Vector3(0, 0, 1);
-			pos = pos.add(dir.multScalar(moveSpeed * Math.min(1.0f, pos.length() * slowDownFactor)));
+			dir = dir.add(new Vector3(0, 0, -1).rotatePitch(-pitch).rotateYaw(-yaw));
 		}
 		if (Input.keyDown(KeyEvent.VK_S)){
-			Vector3 dir = new Vector3(0, 0, -1);
-			pos = pos.add(dir.multScalar(moveSpeed));
+			dir = dir.add(new Vector3(0, 0, 1).rotatePitch(-pitch).rotateYaw(-yaw));
 		}
-		gl.glTranslatef(pos.x, pos.y, pos.z);
+		if (Input.keyDown(KeyEvent.VK_A)){
+			dir = dir.add(new Vector3(-1, 0, 0).rotatePitch(-pitch).rotateYaw(-yaw));
+		}
+		if (Input.keyDown(KeyEvent.VK_D)){
+			dir = dir.add(new Vector3(1, 0, 0).rotatePitch(-pitch).rotateYaw(-yaw));
+		}
+		if (Input.keyDown(KeyEvent.VK_SPACE)){
+			dir = dir.add(new Vector3(0, 1, 0).rotatePitch(-pitch).rotateYaw(-yaw));
+		}
+		if (Input.keyDown(KeyEvent.VK_SHIFT)){
+			dir = dir.add(new Vector3(0, -1, 0).rotatePitch(-pitch).rotateYaw(-yaw));
+		}
+		if (dir != Vector3.zero){
+			dir = dir.normalized();
+			if (closestDistance == null || dir.dot(closestDistance) < 0){
+				pos = pos.add(dir.multScalar(moveSpeed));
+			}
+			else{
+				pos = pos.add(dir.multScalar(moveSpeed * blockSlowDown));
+			}
+		}
 		gl.glRotatef(pitch, 1, 0, 0);
 		gl.glRotatef(yaw, 0, 1, 0);
+		gl.glTranslatef(-pos.x, -pos.y, -pos.z);
 	}
 	
 }
