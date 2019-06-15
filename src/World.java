@@ -37,6 +37,8 @@ public class World implements GLEventListener{
 	// Need an instance to get events from GLEventListener
 	private static World instance = new World();
 	
+	private static BlockList blockSelector = new BlockList(0, 0, 2, 8);
+	
 	/**
 	 * Add the world's GLEventListener to the canvas
 	 * @param canvas
@@ -496,7 +498,7 @@ public class World implements GLEventListener{
 				
 				if (mode == BlockModifyMode.CREATE){
 					
-					addBlock(new Block(1, selectedBlock.x, selectedBlock.y, selectedBlock.z));
+					addBlock(new Block(blockSelector.getSelectedBlockId(), selectedBlock.x, selectedBlock.y, selectedBlock.z));
 					
 				}
 				else if (mode == BlockModifyMode.DESTROY){
@@ -526,6 +528,18 @@ public class World implements GLEventListener{
 				mode = BlockModifyMode.CREATE;
 				
 			}
+			
+		}
+		
+		if (Input.keyPressed(KeyEvent.VK_Q)){
+			
+			blockSelector.cycleSelectedBlockId(-1);
+			
+		}
+		
+		if (Input.keyPressed(KeyEvent.VK_E)){
+			
+			blockSelector.cycleSelectedBlockId(1);
 			
 		}
 		
@@ -562,6 +576,8 @@ public class World implements GLEventListener{
 		setRender2d(gl);
 		
 		renderCrosshairs(gl);
+		
+		blockSelector.render(gl);
 		
 	}
 

@@ -1,4 +1,9 @@
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
@@ -8,7 +13,38 @@ import com.jogamp.opengl.util.FPSAnimator;
 
 public class Main {
 	
+	private static JMenuBar makeMenuBar(){
+		
+		JMenuBar bar = new JMenuBar();
+		
+		JMenu fileMenu = new JMenu("File");
+		
+		JMenuItem save = new JMenuItem("Save");
+		
+		JMenuItem load = new JMenuItem("Load");
+		
+		fileMenu.add(save);
+		
+		fileMenu.add(load);
+		
+		bar.add(fileMenu);
+		
+		return bar;
+		
+	}
+	
 	public static void main(String[] args){
+		
+		try{
+			
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			
+		}
+		catch(Exception e){
+			
+			e.printStackTrace();
+			
+		}
 		
 		final GLProfile profile = GLProfile.get(GLProfile.GL2);
 		
@@ -18,28 +54,13 @@ public class Main {
 		
 		World.initialize(canvas);
 		
-		try{
-			
-			World.addBlock(new Block(1, -5, 0, 5));
-			
-			World.addBlock(new Block(1, 5, 0, 5));
-			
-			World.addBlock(new Block(1, 5, 0, -5));
-			
-			World.addBlock(new Block(1, -5, 0, -5));
-			
-		}
-		catch(BlockPositionOutOfBoundsException e){
-			
-			e.printStackTrace();
-			
-		}
-		
 		canvas.setSize(400, 400);
 		
 		Input.initialize(canvas);
 		
 		final JFrame frame = new JFrame("Structure Editor");
+		
+		frame.setJMenuBar(makeMenuBar());
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		

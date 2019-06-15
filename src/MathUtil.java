@@ -110,4 +110,16 @@ public class MathUtil {
 		
 	}
 	
+	/**
+	 * Modulo operator that is asymmetrical about 0 (always produces positive result)
+	 * @param x
+	 * @param modulo
+	 * @return
+	 */
+	public static int fullMod(int x, int modulo){
+		
+		return ((x % modulo) + modulo) % modulo;
+		
+	}
+	
 }

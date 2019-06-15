@@ -25,4 +25,9 @@ public class Constants {
 	 */
 	public static final int WORLD_SIZE = 20;
 	
+	/**
+	 * Size of an item in a BlockList in pixels
+	 */
+	public static final float BLOCKLIST_ITEM_SIZE = 100;
+	
 }
