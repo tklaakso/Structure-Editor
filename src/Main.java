@@ -17,8 +17,10 @@ public class Main {
 		GLCapabilities capabilities = new GLCapabilities(profile);
 		final GLCanvas canvas = new GLCanvas(capabilities);
 		Window window = new Window();
-		window.addBlock(new Block(0, 5, 0, 5));
-		window.addBlock(new Block(1, 6, 0, 5));
+		window.addBlock(new Block(1, -5, 0, 5));
+		window.addBlock(new Block(1, 5, 0, 5));
+		window.addBlock(new Block(1, 5, 0, -5));
+		window.addBlock(new Block(1, -5, 0, -5));
 		canvas.addGLEventListener(window);
 		canvas.setSize(400, 400);
 		Input.initialize(canvas);

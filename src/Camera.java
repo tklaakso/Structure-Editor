@@ -71,6 +71,10 @@ public class Camera {
 		gl.glTranslatef(-pos.x, -pos.y, -pos.z);
 	}
 	
+	public Vector3f getWorldDirection(){
+		return new Vector3f(0.0f, 0.0f, -1.0f).rotatePitch(getPitch()).rotateYaw(getYaw());
+	}
+	
 	public float getPitch(){
 		return -pitch;
 	}

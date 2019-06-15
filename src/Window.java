@@ -1,19 +1,10 @@
-import java.awt.AWTException;
-import java.awt.Point;
-import java.awt.Robot;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
-
-import javax.swing.JFrame;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
 
@@ -28,15 +19,17 @@ public class Window implements GLEventListener{
 	
 	private GLU glu = new GLU();
 	
-	private int width = Main.FRAME_WIDTH;
-	private int height = Main.FRAME_HEIGHT;
+	public static int width = Main.FRAME_WIDTH;
+	public static int height = Main.FRAME_HEIGHT;
 	
-	private float fovy = 45.0f;
-	private float fovx = calculateFovX();
+	public static float fovy = 45.0f;
+	public static float fovx = calculateFovX();
 	
 	private Camera cam;
 	
 	private Vector3i selectedBlock = Vector3i.zero;
+	
+	private BlockModifyMode mode = BlockModifyMode.CREATE;
 	
 	public Window(){
 		blocks = new Block[WORLD_SIZE * 2][WORLD_SIZE * 2][WORLD_SIZE * 2];
@@ -102,7 +95,7 @@ public class Window implements GLEventListener{
 		}
 	}
 	
-	private float calculateFovX(){
+	private static float calculateFovX(){
 		return 2.0f * (float)Math.toDegrees(Math.atan(Math.tan(Math.toRadians(fovy) * 0.5) * ((float)width / (float)height)));
 	}
 	
@@ -116,6 +109,24 @@ public class Window implements GLEventListener{
 		gl.glDepthFunc(GL2.GL_LEQUAL);
 		gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
 		gl.glEnable(GL2.GL_TEXTURE_2D);
+		gl.glEnable(GL2.GL_BLEND);
+		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+	}
+	
+	private void render3d(GL2 gl){
+		gl.glMatrixMode(GL2.GL_PROJECTION);
+		gl.glLoadIdentity();
+		glu.gluPerspective(60, 1, 0.1, 1000);
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
+		gl.glLoadIdentity();
+	}
+	
+	private void render2d(GL2 gl){
+		gl.glMatrixMode(GL2.GL_PROJECTION);
+		gl.glLoadIdentity();
+		gl.glOrtho(-1.0, 1.0, -1.0, 1.0, 0.0, 30.0);
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
+		gl.glLoadIdentity();
 	}
 
 	public void dispose(GLAutoDrawable drawable) {
@@ -125,61 +136,70 @@ public class Window implements GLEventListener{
 	
 	private void renderSelectedBlock(GL2 gl){
 		
-		gl.glLineWidth(3.0f);
-		
-		gl.glPushMatrix();
-		{
+		if (selectedBlock != null){
 			
-			gl.glTranslatef(selectedBlock.x, selectedBlock.y, selectedBlock.z);
+			gl.glLineWidth(2.0f);
 			
-			gl.glColor3f(0.5f, 0.5f, 0.5f);
-			
-			gl.glBegin(GL2.GL_LINES);
-			
-			// Front
-			gl.glVertex3f(0, 0, 0);
-			gl.glVertex3f(1, 0, 0);
-			
-			gl.glVertex3f(1, 0, 0);
-			gl.glVertex3f(1, 1, 0);
-			
-			gl.glVertex3f(1, 1, 0);
-			gl.glVertex3f(0, 1, 0);
-			
-			gl.glVertex3f(0, 1, 0);
-			gl.glVertex3f(0, 0, 0);
-			
-			// Left
-			gl.glVertex3f(0, 0, 0);
-			gl.glVertex3f(0, 0, 1);
-			
-			gl.glVertex3f(0, 0, 1);
-			gl.glVertex3f(0, 1, 1);
-			
-			gl.glVertex3f(0, 1, 1);
-			gl.glVertex3f(0, 1, 0);
-			
-			// Right
-			gl.glVertex3f(1, 0, 0);
-			gl.glVertex3f(1, 0, 1);
-			
-			gl.glVertex3f(1, 0, 1);
-			gl.glVertex3f(1, 1, 1);
-			
-			gl.glVertex3f(1, 1, 1);
-			gl.glVertex3f(1, 1, 0);
-			
-			// Back
-			gl.glVertex3f(0, 0, 1);
-			gl.glVertex3f(1, 0, 1);
-			
-			gl.glVertex3f(0, 1, 1);
-			gl.glVertex3f(1, 1, 1);
-			
-			gl.glEnd();
+			gl.glPushMatrix();
+			{
+				
+				gl.glTranslatef(selectedBlock.x, selectedBlock.y, selectedBlock.z);
+				
+				if (mode == BlockModifyMode.CREATE){
+					gl.glColor4f(0.0f, 1.0f, 0.0f, (float)(Math.sin(Time.getTimeSeconds() * 5.0f) / 2.0f + 0.5f));
+				}
+				else if (mode == BlockModifyMode.DESTROY){
+					gl.glColor4f(1.0f, 0.0f, 0.0f, (float)(Math.sin(Time.getTimeSeconds() * 5.0f) / 2.0f + 0.5f));
+				}
+				
+				gl.glBegin(GL2.GL_LINES);
+				
+				// Front
+				gl.glVertex3f(0, 0, 0);
+				gl.glVertex3f(1, 0, 0);
+				
+				gl.glVertex3f(1, 0, 0);
+				gl.glVertex3f(1, 1, 0);
+				
+				gl.glVertex3f(1, 1, 0);
+				gl.glVertex3f(0, 1, 0);
+				
+				gl.glVertex3f(0, 1, 0);
+				gl.glVertex3f(0, 0, 0);
+				
+				// Left
+				gl.glVertex3f(0, 0, 0);
+				gl.glVertex3f(0, 0, 1);
+				
+				gl.glVertex3f(0, 0, 1);
+				gl.glVertex3f(0, 1, 1);
+				
+				gl.glVertex3f(0, 1, 1);
+				gl.glVertex3f(0, 1, 0);
+				
+				// Right
+				gl.glVertex3f(1, 0, 0);
+				gl.glVertex3f(1, 0, 1);
+				
+				gl.glVertex3f(1, 0, 1);
+				gl.glVertex3f(1, 1, 1);
+				
+				gl.glVertex3f(1, 1, 1);
+				gl.glVertex3f(1, 1, 0);
+				
+				// Back
+				gl.glVertex3f(0, 0, 1);
+				gl.glVertex3f(1, 0, 1);
+				
+				gl.glVertex3f(0, 1, 1);
+				gl.glVertex3f(1, 1, 1);
+				
+				gl.glEnd();
+				
+			}
+			gl.glPopMatrix();
 			
 		}
-		gl.glPopMatrix();
 		
 	}
 	
@@ -230,18 +250,43 @@ public class Window implements GLEventListener{
 		
 	}
 	
+	private void renderCrosshairs(GL2 gl){
+		
+		float sizeX = 10.0f / width;
+		float sizeY = 10.0f / height;
+		
+		gl.glLineWidth(1.0f);
+		
+		gl.glBegin(GL2.GL_LINES);
+		
+		gl.glColor3f(0.0f, 0.0f, 0.0f);
+		
+		gl.glVertex2f(-sizeX, 0);
+		gl.glVertex2f(sizeX, 0);
+		
+		gl.glVertex2f(0, -sizeY);
+		gl.glVertex2f(0, sizeY);
+		
+		gl.glEnd();
+		
+	}
+	
 	private void updateSelectedBlock(){
-		float normalX = Input.getMouseX() / (float)Math.max(1, width - 1);
-		float normalY = Input.getMouseY() / (float)Math.max(1, height - 1);
-		float angleX = MathUtil.lerp(-fovx / 2.0f, fovx / 2.0f, normalX);
-		float angleY = MathUtil.lerp(fovy / 2.0f, -fovy / 2.0f, normalY);
-		float x = (float)Math.sin(Math.toRadians(angleX));
-		float y = (float)Math.sin(Math.toRadians(angleY));
-		assert(1 - x * x - y * y > 0);
-		float z = (float)Math.sqrt(1 - x * x - y * y);
-		Vector3f dir = new Vector3f(x, y, -z).rotatePitch(cam.getPitch()).rotateYaw(cam.getYaw());
+		Vector3f dir = cam.getWorldDirection();
 		Vector3f origin = cam.getPosition();
-		selectedBlock = blockCast(origin, dir);
+		RayCastInfo info = rayCast(origin, dir);
+		if (mode == BlockModifyMode.CREATE){
+			Vector3i blockPos = info.addPosition;
+			if (blockPos != null){
+				selectedBlock = blockPos;
+			}
+		}
+		else if (mode == BlockModifyMode.DESTROY){
+			Vector3i blockPos = info.blockPosition;
+			if (blockPos != null){
+				selectedBlock = blockPos;
+			}
+		}
 	}
 	
 	private void tick(){
@@ -249,7 +294,20 @@ public class Window implements GLEventListener{
 		cam.tick();
 		updateSelectedBlock();
 		if (Input.mousePressed(MouseEvent.BUTTON3)){
-			removeBlock(selectedBlock.x, selectedBlock.y, selectedBlock.z);
+			if (mode == BlockModifyMode.CREATE){
+				addBlock(new Block(1, selectedBlock.x, selectedBlock.y, selectedBlock.z));
+			}
+			else if (mode == BlockModifyMode.DESTROY){
+				removeBlock(selectedBlock.x, selectedBlock.y, selectedBlock.z);
+			}
+		}
+		if (Input.keyPressed(KeyEvent.VK_R)){
+			if (mode == BlockModifyMode.CREATE){
+				mode = BlockModifyMode.DESTROY;
+			}
+			else{
+				mode = BlockModifyMode.CREATE;
+			}
 		}
 	}
 	
@@ -258,6 +316,7 @@ public class Window implements GLEventListener{
 	}
 	
 	private void render(GL2 gl){
+		render3d(gl);
 		gl.glLoadIdentity();
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT );
@@ -267,6 +326,8 @@ public class Window implements GLEventListener{
 			blockList.get(i).render(gl);
 		}
 		renderSelectedBlock(gl);
+		render2d(gl);
+		renderCrosshairs(gl);
 	}
 
 	public void display(GLAutoDrawable drawable) {
@@ -277,8 +338,8 @@ public class Window implements GLEventListener{
 	}
 
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-		this.width = width;
-		this.height = height;
+		Window.width = width;
+		Window.height = height;
 		fovx = calculateFovX();
 		final GL2 gl = drawable.getGL().getGL2();
 		if(height <= 0)
@@ -292,68 +353,35 @@ public class Window implements GLEventListener{
 		gl.glLoadIdentity();
 	}
 	
-	private int round(int sign, float val){
-		if (sign >= 0){
-			return (int)Math.floor(val);
-		}
-		return (int)Math.ceil(val);
-	}
-	
 	private int floor(float x){
-		if ((int)x == x){
-			return (int)(x - 1);
-		}
 		return (int)Math.floor(x);
 	}
 	
-	private int ceil(float x){
-		if ((int)x == x){
-			return (int)(x + 1);
+	private int round(float x, int sign){
+		if (sign == -1){
+			return (int)Math.floor(x);
 		}
-		return (int)Math.ceil(x);
+		else if (sign == 1){
+			return (int)Math.ceil(x);
+		}
+		return 0;
 	}
 	
-	private Vector3i blockCast(Vector3f origin, Vector3f dir){
+	private RayCastInfo rayCast(Vector3f origin, Vector3f dir){
 		Vector3f pos = origin.clone();
-		int signX = (int)Math.signum(dir.x);
-		int signY = (int)Math.signum(dir.y);
-		int signZ = (int)Math.signum(dir.z);
 		Vector3i nullPosition = null;
 		while (pos.sub(origin).length() < 20.0f){
 			if (nullPosition == null && pos.sub(origin).length() > BLOCK_CAST_NULL_DISTANCE){
-				nullPosition = new Vector3i((int)pos.x, (int)pos.y, (int)pos.z);
+				nullPosition = new Vector3i(floor(pos.x), floor(pos.y), floor(pos.z));
 			}
-			Vector3f posX = null, posY = null, posZ = null;
-			if (signX != 0){
-				int targetPosX = signX == -1 ? floor(pos.x) : ceil(pos.x);
-				posX = pos.add(dir.multScalar(Math.abs(pos.x - targetPosX) / Math.abs(dir.x)));
-				posX.x = Math.round(posX.x);
-			}
-			if (signY != 0){
-				int targetPosY = signY == -1 ? floor(pos.y) : ceil(pos.y);
-				posY = pos.add(dir.multScalar(Math.abs(pos.y - targetPosY) / Math.abs(dir.y)));
-				posY.y = Math.round(posY.y);
-			}
-			if (signZ != 0){
-				int targetPosZ = signZ == -1 ? floor(pos.z) : ceil(pos.z);
-				posZ = pos.add(dir.multScalar(Math.abs(pos.z - targetPosZ) / Math.abs(dir.z)));
-				posZ.z = Math.round(posZ.z);
-			}
-			if (posX != null && round(signY, posX.y) == round(signY, pos.y) && round(signZ, posX.z) == round(signZ, pos.z)){
-				pos = posX.clone();
-			}
-			else if (posY != null && round(signX, posY.x) == round(signX, pos.x) && round(signZ, posY.z) == round(signZ, pos.z)){
-				pos = posY.clone();
-			}
-			else if (posZ != null && round(signX, posZ.x) == round(signX, pos.x) && round(signY, posZ.y) == round(signY, pos.y)){
-				pos = posZ.clone();
-			}
-			Block b = getBlock(round(signX, pos.x), round(signY, pos.y), round(signZ, pos.z));
-			if (b != null){
-				return new Vector3i(b.x, b.y, b.z);
+			pos = pos.add(dir.multScalar(0.025f));
+			Block atPosition = getBlock(floor(pos.x), floor(pos.y), floor(pos.z));
+			if (atPosition != null){
+				Vector3f avgPos = pos.sub(dir.multScalar(0.025f)).add(pos).multScalar(0.5f);
+				return new RayCastInfo(new Vector3i(floor(pos.x), floor(pos.y), floor(pos.z)), atPosition.getClosestFace(avgPos));
 			}
 		}
-		return nullPosition;
+		return new RayCastInfo(nullPosition, nullPosition);
 	}
 
 }

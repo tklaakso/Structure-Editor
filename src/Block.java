@@ -63,6 +63,39 @@ public class Block implements Renderable{
 		return new Vector3f(clamp(point.x, x - 0.15f, x + 1.15f), clamp(point.y, y - 0.15f, y + 1.15f), clamp(point.z, z - 0.15f, z + 1.15f));
 	}
 	
+	public Vector3i getClosestFace(Vector3f point){
+		Vector3f pos = new Vector3f(x + 0.5f, y + 0.5f, z + 0.5f);
+		Vector3f left = pos.add(new Vector3f(-0.5f, 0.0f, 0.0f));
+		Vector3f right = pos.add(new Vector3f(0.5f, 0.0f, 0.0f));
+		Vector3f top = pos.add(new Vector3f(0.0f, 0.5f, 0.0f));
+		Vector3f bottom = pos.add(new Vector3f(0.0f, -0.5f, 0.0f));
+		Vector3f front = pos.add(new Vector3f(0.0f, 0.0f, -0.5f));
+		Vector3f back = pos.add(new Vector3f(0.0f, 0.0f, 0.5f));
+		Vector3i closestBlock = new Vector3i(x - 1, y, z);
+		Vector3f closestFace = left;
+		if (point.sub(right).length() < point.sub(closestFace).length()){
+			closestBlock = new Vector3i(x + 1, y, z);
+			closestFace = right;
+		}
+		if (point.sub(top).length() < point.sub(closestFace).length()){
+			closestBlock = new Vector3i(x, y + 1, z);
+			closestFace = top;
+		}
+		if (point.sub(bottom).length() < point.sub(closestFace).length()){
+			closestBlock = new Vector3i(x, y - 1, z);
+			closestFace = bottom;
+		}
+		if (point.sub(front).length() < point.sub(closestFace).length()){
+			closestBlock = new Vector3i(x, y, z - 1);
+			closestFace = front;
+		}
+		if (point.sub(back).length() < point.sub(closestFace).length()){
+			closestBlock = new Vector3i(x, y, z + 1);
+			closestFace = back;
+		}
+		return closestBlock;
+	}
+	
 	public void render(GL2 gl) {
 		
 		gl.glPushMatrix();
