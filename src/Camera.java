@@ -108,6 +108,10 @@ public class Camera {
 			
 		}
 		
+		pos.x = MathUtil.clamp(pos.x, -Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		pos.y = MathUtil.clamp(pos.y, -Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		pos.z = MathUtil.clamp(pos.z, -Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		
 	}
 	
 	public static void render(GL2 gl){

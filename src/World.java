@@ -465,6 +465,49 @@ public class World implements GLEventListener{
 			
 		}
 		
+		// Render bounding box
+		gl.glColor3f(1.0f, 0.0f, 0.0f);
+		
+		// Front
+		gl.glVertex3f(-Constants.WORLD_SIZE, -Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		gl.glVertex3f(Constants.WORLD_SIZE, -Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		
+		gl.glVertex3f(Constants.WORLD_SIZE, -Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		gl.glVertex3f(Constants.WORLD_SIZE, Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		
+		gl.glVertex3f(Constants.WORLD_SIZE, Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		gl.glVertex3f(-Constants.WORLD_SIZE, Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		
+		gl.glVertex3f(-Constants.WORLD_SIZE, Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		gl.glVertex3f(-Constants.WORLD_SIZE, -Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		
+		// Left
+		gl.glVertex3f(-Constants.WORLD_SIZE, -Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		gl.glVertex3f(-Constants.WORLD_SIZE, -Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		
+		gl.glVertex3f(-Constants.WORLD_SIZE, -Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		gl.glVertex3f(-Constants.WORLD_SIZE, Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		
+		gl.glVertex3f(-Constants.WORLD_SIZE, Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		gl.glVertex3f(-Constants.WORLD_SIZE, Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		
+		// Right
+		gl.glVertex3f(Constants.WORLD_SIZE, -Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		gl.glVertex3f(Constants.WORLD_SIZE, -Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		
+		gl.glVertex3f(Constants.WORLD_SIZE, -Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		gl.glVertex3f(Constants.WORLD_SIZE, Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		
+		gl.glVertex3f(Constants.WORLD_SIZE, Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		gl.glVertex3f(Constants.WORLD_SIZE, Constants.WORLD_SIZE, -Constants.WORLD_SIZE);
+		
+		// Back
+		gl.glVertex3f(-Constants.WORLD_SIZE, -Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		gl.glVertex3f(Constants.WORLD_SIZE, -Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		
+		gl.glVertex3f(-Constants.WORLD_SIZE, Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		gl.glVertex3f(Constants.WORLD_SIZE, Constants.WORLD_SIZE, Constants.WORLD_SIZE);
+		
 		gl.glEnd();
 		
 	}
@@ -619,7 +662,7 @@ public class World implements GLEventListener{
 		
 		gl.glLoadIdentity();
 		
-		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		gl.glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 		
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 		

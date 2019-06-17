@@ -84,7 +84,7 @@ public class MathUtil {
 					
 					pos = pos.sub(dir.multScalar(0.025f));
 					
-					Vector3i furthestPosition = new Vector3i((int)pos.x, (int)pos.y, (int)pos.z);
+					Vector3i furthestPosition = new Vector3i((int)Math.floor(pos.x), (int)Math.floor(pos.y), (int)Math.floor(pos.z));
 					
 					return new RayCastInfo(furthestPosition, furthestPosition);
 					
