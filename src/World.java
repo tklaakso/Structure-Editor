@@ -540,6 +540,8 @@ public class World implements GLEventListener{
 		
 		Camera.tick();
 		
+		blockSelector.tick();
+		
 		updateSelectedBlock();
 		
 		if (Input.mousePressed(MouseEvent.BUTTON3)){
@@ -581,15 +583,25 @@ public class World implements GLEventListener{
 			
 		}
 		
-		if (Input.keyPressed(KeyEvent.VK_Q)){
+		if (blockSelector.isEnabled()){
 			
-			blockSelector.cycleSelectedBlockId(-1);
+			if (Input.keyPressed(KeyEvent.VK_Q)){
+				
+				blockSelector.cycleSelectedBlockId(-1);
+				
+			}
+			
+			if (Input.keyPressed(KeyEvent.VK_E)){
+				
+				blockSelector.cycleSelectedBlockId(1);
+				
+			}
 			
 		}
 		
-		if (Input.keyPressed(KeyEvent.VK_E)){
+		if (Input.keyPressed(KeyEvent.VK_F)){
 			
-			blockSelector.cycleSelectedBlockId(1);
+			blockSelector.setEnabled(!blockSelector.isEnabled());
 			
 		}
 		

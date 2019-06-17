@@ -15,6 +15,8 @@ public class Time {
 		
 		deltaTime = (System.currentTimeMillis() - prevTime) / 1000.0f;
 		
+		prevTime = System.currentTimeMillis();
+		
 	}
 	
 	/**

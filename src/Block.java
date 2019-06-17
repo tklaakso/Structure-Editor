@@ -240,6 +240,8 @@ public class Block {
 			
 			gl.glEnd();
 			
+			gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+			
 		}
 		gl.glPopMatrix();
 		
