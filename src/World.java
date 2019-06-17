@@ -172,6 +172,56 @@ public class World implements GLEventListener{
 	}
 	
 	/**
+	 * Returns a list of all current existing blocks
+	 * @return
+	 */
+	public static ArrayList<Block> getBlocks(){
+		
+		return blockList;
+		
+	}
+	
+	/**
+	 * Reset the world's blocks and replace them with the parameter blocks
+	 * @param blocks
+	 */
+	public static void setBlocks(ArrayList<Block> blocks){
+		
+		while (blockList.size() > 0){
+			
+			Block block = blockList.get(0);
+			
+			try{
+				
+				removeBlock(block.x, block.y, block.z);
+				
+			}
+			catch(BlockPositionOutOfBoundsException e){
+				
+				e.printStackTrace();
+				
+			}
+			
+		}
+		
+		for (int i = 0; i < blocks.size(); i++){
+			
+			try{
+				
+				addBlock(blocks.get(i));
+				
+			}
+			catch(BlockPositionOutOfBoundsException e){
+				
+				e.printStackTrace();
+				
+			}
+			
+		}
+		
+	}
+	
+	/**
 	 * Set a block in the block array <br/>
 	 * Requires: b is not null and b's position is in the world range
 	 * @param b
